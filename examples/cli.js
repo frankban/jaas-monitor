@@ -10,7 +10,7 @@ global.btoa = require('btoa');
 global.XMLHttpRequest = require('xhr2');
 
 const monitor = require('../monitor');
-const checkers = require('../checkers');
+const checkers = require('../cli-checkers');
 
 async function main() {
   const options = {
@@ -26,22 +26,16 @@ async function main() {
         console.log('visit this URL to login:', resp.Info.VisitURL)
     })
   };
-  const checklist = [
-    checkers.checkModel,
-    checkers.checkUnits,
-    checkers.checkJujushell
-  ];
+  const machineCounter = new checkers.MachineCounter();
+  const checklist = [machineCounter.check];
+  const ui = new UI();
   try {
-    await monitor(
-      'wss://jimm.jujucharms.com:443/api',
-      options,
-      checklist,
-      new UI()
-    );
+    await monitor('wss://jimm.jujucharms.com:443/api', options, checklist, ui);
   } catch (err) {
     console.log(err);
     process.exit(1);
   }
+  ui.info(`number of machines: ${machineCounter.count}`);
   process.exit(0);
 }
 

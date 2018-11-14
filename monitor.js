@@ -146,6 +146,10 @@ async function inspectModel(modelURL, options, limiter, checkers, ui) {
 }
 
 async function runChecker(checker, connect, status, ui) {
+  if (!checker) {
+    ui.error('cannot run undefined checker');
+    return;
+  }
   ui = ui.withContext({checker: checker.name});
   try {
     await checker(connect, status, ui);
